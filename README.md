@@ -1,4 +1,11 @@
+# Network Policy Nirvana
+**Automating Security & Delivering Self-Service with Kyverno**
 
+This repository contains the demo for a session presented at KCD San Francisco 2025.
+
+Here are the accompanying [slides](https://docs.google.com/presentation/d/1iSDuCzh7KqvPNylnD2hXdUPwYGCcRSYG/edit?slide=id.g37c5a709afd_0_49#slide=id.g37c5a709afd_0_49) for the session.
+
+Follow the steps below to run the demo:
 
 ## Setup
 

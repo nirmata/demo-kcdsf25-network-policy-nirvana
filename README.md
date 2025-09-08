@@ -99,7 +99,7 @@ Configure Kyverno permissions to allow managing Cilium network policies:
 kubectl apply -f config/kyverno/rbac/
 ```
 
-### 4. Install Kyverno policies
+### 4. Install Kyverno policy behaviors
 
 ```sh
 kubectl apply -f config/kyverno/policies

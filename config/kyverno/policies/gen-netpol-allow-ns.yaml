@@ -1,0 +1,37 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-netpol-allowns 
+  annotations:
+    policies.kyverno.io/description: allow traffic within the namespace
+spec:
+  background: false
+  rules:
+    - name: allowns
+      match:
+        resources:
+          kinds:
+            - Namespace
+          selector:
+            matchLabels:
+              allow-ns-traffic: "true"
+      generate:
+        generateExisting: true
+        kind: CiliumNetworkPolicy
+        apiVersion: cilium.io/v2
+        name: allow-ns
+        namespace: "{{request.object.metadata.name}}"
+        synchronize: true
+        data:
+          spec:
+            endpointSelector:
+                matchLabels: {}
+            egress:
+              - toEndpoints:
+                - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": "{{ request.object.metadata.name }}"
+            ingress:
+              - fromEndpoints:
+                - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": "{{ request.object.metadata.name }}"
+

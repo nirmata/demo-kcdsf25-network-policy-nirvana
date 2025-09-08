@@ -1,0 +1,32 @@
+apiVersion : kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: check-images
+  annotations:
+    policies.kyverno.io/description: check images    
+spec:
+  background: false
+  validationFailureAction: Enforce
+  rules:
+  - name: backend-images
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          operations:
+          - CREATE
+          namespaceSelector:
+            matchLabels:
+              tier: backend
+    validate:
+      deny:
+      foreach:
+      - list: "images.*.* | []"
+        deny:
+          conditions:
+            all:
+            - key: "{{ element.name }}"
+              operator: AllNotIn
+              value: ["redis", "gb-redis-follower"]
+              message: "image {{ element.name }} is not allowed in the backend tier"

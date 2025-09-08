@@ -1,0 +1,23 @@
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-labels
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: check-ns
+      match:
+        resources:
+          kinds:
+            - Namespace
+          operations:
+            - CREATE
+      validate:
+        message: "The namespace must have a labels workspace and tier"
+        pattern:
+          metadata:
+            labels:
+              workspace: "?*"
+              tier: "?*"

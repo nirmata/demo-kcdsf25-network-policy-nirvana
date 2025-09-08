@@ -1,0 +1,12 @@
+kind: CiliumNetworkPolicy
+apiVersion: cilium.io/v2
+metadata:
+  name: allow-dns
+spec:
+  endpointSelector:
+    matchLabels: {}
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        "k8s:io.kubernetes.pod.namespace": kube-system
+        "k8s:k8s-app": kube-dns

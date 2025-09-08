@@ -1,0 +1,79 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: check-network-policies
+  annotations:
+    policies.kyverno.io/description: deny a Kubernetes NetworkPolicy
+spec:
+  background: false
+  validationFailureAction: Enforce
+  rules:
+  - name: deny-kubernetes-netpol
+    match:
+      any:
+      - resources:
+          kinds:
+          - NetworkPolicy
+    validate:
+      message: "NetworkPolicy is not allowed; use CiliumNetworkPolicy instead"
+      deny: {}
+  - name: deny-egress-backend
+    match:
+      any:
+      - resources:
+          kinds:
+          - CiliumNetworkPolicy
+          namespaceSelector:
+            matchLabels:
+              tier: backend
+          operations:
+          - CREATE
+          - UPDATE
+    exclude:
+      resources:
+        kinds:
+        - CiliumNetworkPolicy
+        selector:
+          matchLabels:
+            app.kubernetes.io/managed-by: kyverno
+    validate:
+      message: "egress traffic from backend tier is not allowed"
+      deny:
+        conditions:
+          any:
+          # NOTE: additonal validation rules can be added here 
+          # for other types of egress traffic checks
+          - key: "{{ length(request.object.spec.egress[].toEntities || '') }}"
+            operator: NotEqual
+            value: 0
+            message: "toEntities are not allowed"
+  - name: check-ingress-backend
+    match:
+      any:
+      - resources:
+          kinds:
+          - CiliumNetworkPolicy
+          namespaceSelector:
+            matchLabels:
+              tier: backend
+          operations:
+          - CREATE
+          - UPDATE
+    exclude:
+      resources:
+        kinds:
+        - CiliumNetworkPolicy
+        selector:
+          matchLabels:
+            app.kubernetes.io/managed-by: kyverno
+    validate:
+      message: "only ingress traffic from the frontend tier is allowed"
+      deny:
+        conditions:
+          any:
+          # NOTE: additonal validation rules can be added here 
+          # for other types of ingress traffic checks
+          - key: "{{ length(request.object.spec.ingress[].fromEntities[] || '') }}"
+            operator: NotEqual
+            value: 0
+            message: "fromEntities are not allowed"

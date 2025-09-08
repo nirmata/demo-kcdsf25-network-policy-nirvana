@@ -1,0 +1,17 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30005
+    hostPort: 30005
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+- role: worker
+- role: worker
+- role: worker
+networking:
+  disableDefaultCNI: true
+  podSubnet: "10.10.0.0/16"
+  serviceSubnet: "10.11.0.0/16"
+

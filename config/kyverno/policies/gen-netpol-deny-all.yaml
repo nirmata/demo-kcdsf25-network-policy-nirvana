@@ -1,0 +1,28 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-netpol-denyall
+  annotations:
+    policies.kyverno.io/description: generate default network policy
+spec:
+  background: false
+  rules:
+    - name: default-deny
+      match:
+        resources:
+          kinds:
+            - Namespace
+      generate:
+        kind: CiliumNetworkPolicy
+        apiVersion: cilium.io/v2
+        name: deny-all
+        namespace: "{{request.object.metadata.name}}"
+        synchronize: true
+        data:
+          spec:
+            endpointSelector:
+              matchLabels: {}
+            ingress: 
+            - {}
+            egress: 
+            - {}

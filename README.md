@@ -308,16 +308,10 @@ Check the running pods:
 kubectl -n wks1-guestbook get pods
 ```
 
-Sample output:
-```sh
-NAME                         READY   STATUS    RESTARTS   AGE
-guestbook-7dc7786f46-78hkk   1/1     Running   0          3m7s
-```
-
-Note: you will need to update the pod name to match your deployment:
+Attach `netshoot` as a debug container to the Pod:
 
 ```sh
-kubectl -n wks1-guestbook debug -i -t --image nicolaka/netshoot --profile general {{POD_NAME}}
+kubectl -n wks1-guestbook debug -i -t --image nicolaka/netshoot --profile general $(kubectl -n wks1-guestbook get pods -l tier=frontend -o jsonpath='{.items[0].metadata.name}')
 ```
 
 In the netshoot session check connectivity from the frontend pod in wks1 to the backend service in wks1:
